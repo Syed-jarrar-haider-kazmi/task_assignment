@@ -29,19 +29,17 @@ class IpActivity < ApplicationRecord
       .or(where(trading_account_login: logins))
   }
   scope :recent_n_per_activity_type, lambda { |limit|
-    query = <<-SQL.squish
-      SELECT activity_all.id
-      FROM (SELECT DISTINCT activity_type FROM ip_activities) activity_groups
-      JOIN LATERAL (
-        SELECT id FROM ip_activities activity_all
-        WHERE activity_all.activity_type = activity_groups.activity_type
-        ORDER BY activity_all.created_at DESC
-        LIMIT :limit
-      ) activity_all ON true
-  SQL
+    subquery = <<~SQL
+      SELECT id FROM (
+        SELECT id,
+              ROW_NUMBER() OVER (PARTITION BY activity_type ORDER BY created_at DESC) AS row_num
+        FROM ip_activities
+      ) ranked
+      WHERE row_num <= :limit
+    SQL
 
-    where("ip_activities.id IN (#{ApplicationRecord.sanitize_sql([query, { limit: }])})")
-}
+    where("ip_activities.id IN (#{ApplicationRecord.sanitize_sql([subquery, { limit: limit }])})")
+  }
 
   def self.filter_fields
     {
