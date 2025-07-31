@@ -99,6 +99,19 @@ sample_users.each do |user|
   end
 end
 
+
+# Create some filters for testing
+10.times do |i|
+  UniversalFilter.create!(
+    name: "Recent Trade Activities #{i + 1}",
+    target_model: 'IpActivity',
+    filter_params: {
+      'created_at_from' => (30 - i).days.ago.strftime('%Y-%m-%d'),
+      'created_at_to' => Time.current.strftime('%Y-%m-%d'),
+      'activity_type' => ['trade']
+    }
+  )
+end
 puts "Seed data created successfully!"
 puts "Summary:"
 puts "- Users: #{User.count}"

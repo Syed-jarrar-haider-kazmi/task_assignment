@@ -1,0 +1,32 @@
+
+# IpActivityFetcher Refactor - Thought Process and Design Decisions
+
+## Problem Statement
+We needed to implement smart limiting logic that:
+- Prioritizes KYC and Login activities
+- Ensures only a specific number of records per activity type (kyc, login, trade) are returned
+- Should handle performance concerns on large datasets (~100M records)
+
+---
+
+TASK # 1
+
+## Approach
+1. Defined constants: MAX_KYC = 10, MAX_LOGIN = 1000, MAX_TOTAL = 3000
+2. Create the service file which will do all the fetching of ids and combined them
+3. Improvment of mentioed scope for the performance purpose.
+4. Ordered the final result set based on activity type priority (kyc -> login -> trade).
+
+
+TASK # 2
+
+## Approach
+1. Create a model UniversalFilter to save all the filter options, handled params in controller for filters identifying
+2. Move logics to concerns so that it can be mapped to other models (i.e users)
+3. Created the service that will be called in controller to perform all filtering
+4. Created concern method apply_filters in such as way that is can mat the dyamic scopes and easily scalable for other models.
+5. The filter_fields and filter_mappings additions in model introduce a dynamic filtering system for the IpActivity model. These definitions enable reusable,
+   structured filtering of activity records based on common attributes like date, activity type, trading account login, phase, and platform.
+   Before this code, filtering was hardcoded in the controller, I have not removed code from controller, but added a comment there. using them as alternative,
+   if we did not specify filter default params appoach works
+

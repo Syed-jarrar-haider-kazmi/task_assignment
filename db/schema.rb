@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_05_01_000004) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_09_184331) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_05_01_000004) do
     t.integer "activity_type", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["activity_type", "created_at"], name: "index_ip_activities_on_type_and_created_at", order: { created_at: :desc }
     t.index ["user_id"], name: "index_ip_activities_on_user_id"
   end
 
@@ -46,6 +47,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_05_01_000004) do
     t.datetime "updated_at", null: false
     t.index ["login"], name: "index_trading_accounts_on_login", unique: true
     t.index ["user_id"], name: "index_trading_accounts_on_user_id"
+  end
+
+  create_table "universal_filters", force: :cascade do |t|
+    t.string "name"
+    t.string "filterable_type"
+    t.bigint "filterable_id"
+    t.string "target_model", null: false
+    t.jsonb "filter_params", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filterable_type", "filterable_id"], name: "index_universal_filters_on_filterable_type_and_filterable_id"
+    t.index ["target_model"], name: "index_universal_filters_on_target_model"
   end
 
   create_table "users", force: :cascade do |t|
